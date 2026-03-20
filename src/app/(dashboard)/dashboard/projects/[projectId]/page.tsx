@@ -35,37 +35,35 @@ export default async function ProjectDetailPage({ params }: PageProps) {
   const doneTasks = project.tasks.filter((task) => task.status === "DONE");
 
   return (
-    <main className="min-h-screen bg-background p-6">
-      <div className="mx-auto max-w-7xl space-y-10">
-        <section className="space-y-3">
-          <p className="text-sm font-medium text-muted-foreground">
-            Project Detail
+    <div className="mx-auto max-w-7xl space-y-10 p-6">
+      <section className="space-y-3">
+        <p className="text-sm font-medium text-muted-foreground">
+          Project Detail
+        </p>
+
+        <div className="space-y-2">
+          <h1 className="text-4xl font-bold tracking-tight">{project.name}</h1>
+          <p className="max-w-2xl text-sm text-muted-foreground sm:text-base">
+            {project.description || "No description provided."}
           </p>
+        </div>
+      </section>
 
-          <div className="space-y-2">
-            <h1 className="text-4xl font-bold tracking-tight">{project.name}</h1>
-            <p className="max-w-2xl text-sm text-muted-foreground sm:text-base">
-              {project.description || "No description provided."}
-            </p>
-          </div>
+      <section className="rounded-2xl border bg-card p-5 shadow-sm">
+        <CreateTaskForm projectId={project.id} />
+      </section>
+
+      <KanbanBoard>
+        <section className="grid gap-4 lg:grid-cols-3">
+          <KanbanTaskColumn id="TODO" title="Todo" tasks={todoTasks} />
+          <KanbanTaskColumn
+            id="IN_PROGRESS"
+            title="In Progress"
+            tasks={inProgressTasks}
+          />
+          <KanbanTaskColumn id="DONE" title="Done" tasks={doneTasks} />
         </section>
-
-        <section className="rounded-2xl border bg-card p-5 shadow-sm">
-          <CreateTaskForm projectId={project.id} />
-        </section>
-
-        <KanbanBoard>
-          <section className="grid gap-4 lg:grid-cols-3">
-            <KanbanTaskColumn id="TODO" title="Todo" tasks={todoTasks} />
-            <KanbanTaskColumn
-              id="IN_PROGRESS"
-              title="In Progress"
-              tasks={inProgressTasks}
-            />
-            <KanbanTaskColumn id="DONE" title="Done" tasks={doneTasks} />
-          </section>
-        </KanbanBoard>
-      </div>
-    </main>
+      </KanbanBoard>
+    </div>
   );
 }
