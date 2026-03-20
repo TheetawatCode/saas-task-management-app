@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 type Props = {
   taskId: string;
@@ -9,60 +10,104 @@ type Props = {
 
 export function TaskActions({ taskId, currentStatus }: Props) {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  async function updateStatus(status: string) {
-    await fetch(`/api/tasks/${taskId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
+  async function updateStatus(status: "TODO" | "IN_PROGRESS" | "DONE") {
+    try {
+      setIsLoading(true);
+      setError(null);
 
-    router.refresh();
+      const response = await fetch(`/api/tasks/${taskId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update task");
+      }
+
+      router.refresh();
+    } catch (error) {
+      console.error("[TASK_ACTIONS_UPDATE]", error);
+      setError("Could not update task.");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   async function deleteTask() {
-    await fetch(`/api/tasks/${taskId}`, {
-      method: "DELETE",
-    });
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this task?"
+    );
 
-    router.refresh();
+    if (!confirmed) return;
+
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await fetch(`/api/tasks/${taskId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete task");
+      }
+
+      router.refresh();
+    } catch (error) {
+      console.error("[TASK_ACTIONS_DELETE]", error);
+      setError("Could not delete task.");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
-    <div className="mt-3 flex flex-wrap gap-2">
-      {currentStatus !== "TODO" && (
-        <button
-          onClick={() => updateStatus("TODO")}
-          className="text-xs border px-2 py-1 rounded"
-        >
-          Todo
-        </button>
-      )}
+    <div className="space-y-2">
+      <div className="flex flex-wrap gap-2">
+        {currentStatus !== "TODO" && (
+          <button
+            onClick={() => updateStatus("TODO")}
+            disabled={isLoading}
+            className="rounded-lg border px-2.5 py-1 text-xs text-muted-foreground transition hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {isLoading ? "Updating..." : "Todo"}
+          </button>
+        )}
 
-      {currentStatus !== "IN_PROGRESS" && (
-        <button
-          onClick={() => updateStatus("IN_PROGRESS")}
-          className="text-xs border px-2 py-1 rounded"
-        >
-          In Progress
-        </button>
-      )}
+        {currentStatus !== "IN_PROGRESS" && (
+          <button
+            onClick={() => updateStatus("IN_PROGRESS")}
+            disabled={isLoading}
+            className="rounded-lg border px-2.5 py-1 text-xs text-muted-foreground transition hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {isLoading ? "Updating..." : "In Progress"}
+          </button>
+        )}
 
-      {currentStatus !== "DONE" && (
-        <button
-          onClick={() => updateStatus("DONE")}
-          className="text-xs border px-2 py-1 rounded"
-        >
-          Done
-        </button>
-      )}
+        {currentStatus !== "DONE" && (
+          <button
+            onClick={() => updateStatus("DONE")}
+            disabled={isLoading}
+            className="rounded-lg border px-2.5 py-1 text-xs text-muted-foreground transition hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {isLoading ? "Updating..." : "Done"}
+          </button>
+        )}
 
-      <button
-        onClick={deleteTask}
-        className="text-xs border px-2 py-1 rounded text-red-500"
-      >
-        Delete
-      </button>
+        <button
+          onClick={deleteTask}
+          disabled={isLoading}
+          className="rounded-lg border border-red-200 px-2.5 py-1 text-xs text-red-500 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {isLoading ? "Processing..." : "Delete"}
+        </button>
+      </div>
+
+      {error ? <p className="text-xs text-red-500">{error}</p> : null}
     </div>
   );
 }

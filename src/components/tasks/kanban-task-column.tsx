@@ -26,7 +26,7 @@ export function KanbanTaskColumn({
             tasks.map((task) => <TaskCard key={task.id} task={task} />)
           ) : (
             <div className="rounded-xl border border-dashed p-6 text-center text-sm text-muted-foreground">
-              No tasks
+              No tasks in this column
             </div>
           )}
         </div>

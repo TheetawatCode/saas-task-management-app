@@ -3,26 +3,35 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-type CreateTaskFormProps = {
+type Props = {
   projectId: string;
 };
 
-export function CreateTaskForm({ projectId }: CreateTaskFormProps) {
+export function CreateTaskForm({ projectId }: Props) {
   const router = useRouter();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [status, setStatus] = useState("TODO");
-  const [priority, setPriority] = useState("MEDIUM");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [priority, setPriority] = useState<"LOW" | "MEDIUM" | "HIGH">("MEDIUM");
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setErrorMessage("");
-    setIsSubmitting(true);
+
+    if (!title.trim()) {
+      setError("Title is required");
+      setSuccessMessage(null);
+      return;
+    }
 
     try {
+      setIsSubmitting(true);
+      setError(null);
+      setSuccessMessage(null);
+
       const response = await fetch("/api/tasks", {
         method: "POST",
         headers: {
@@ -31,118 +40,88 @@ export function CreateTaskForm({ projectId }: CreateTaskFormProps) {
         body: JSON.stringify({
           title,
           description,
-          status,
           priority,
           projectId,
         }),
       });
 
-      const result = await response.json();
-
       if (!response.ok) {
-        throw new Error(result.message || "Failed to create task");
+        throw new Error("Failed to create task");
       }
 
       setTitle("");
       setDescription("");
-      setStatus("TODO");
       setPriority("MEDIUM");
+      setSuccessMessage("Task created successfully.");
 
       router.refresh();
-    } catch (error) {
-      setErrorMessage(
-        error instanceof Error ? error.message : "Something went wrong"
-      );
+    } catch (err) {
+      console.error("[CREATE_TASK]", err);
+      setError("Something went wrong. Please try again.");
+      setSuccessMessage(null);
     } finally {
       setIsSubmitting(false);
     }
   }
 
   return (
-    <div className="rounded-2xl border bg-card p-5 shadow-sm">
-      <div className="mb-4">
-        <h2 className="text-lg font-semibold">Create Task</h2>
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <div className="space-y-1">
+        <h2 className="text-lg font-semibold">Create New Task</h2>
         <p className="text-sm text-muted-foreground">
-          Add a new task to this project
+          Add a new task to this project board.
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <label htmlFor="title" className="text-sm font-medium">
-            Title
-          </label>
-          <input
-            id="title"
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Enter task title"
-            className="w-full rounded-xl border px-3 py-2 text-sm outline-none ring-0"
-            required
-          />
-        </div>
+      <div className="space-y-4">
+        <input
+          type="text"
+          placeholder="Task title..."
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="w-full rounded-xl border px-3 py-2.5 text-sm outline-none transition focus:ring-2 focus:ring-primary"
+        />
 
-        <div className="space-y-2">
-          <label htmlFor="description" className="text-sm font-medium">
-            Description
-          </label>
-          <textarea
-            id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Enter task description"
-            rows={4}
-            className="w-full rounded-xl border px-3 py-2 text-sm outline-none ring-0"
-          />
-        </div>
+        <textarea
+          placeholder="Description (optional)..."
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          rows={4}
+          className="w-full rounded-xl border px-3 py-2.5 text-sm outline-none transition focus:ring-2 focus:ring-primary"
+        />
 
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <label htmlFor="status" className="text-sm font-medium">
-              Status
-            </label>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Priority</span>
+
             <select
-              id="status"
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              className="w-full rounded-xl border px-3 py-2 text-sm"
-            >
-              <option value="TODO">Todo</option>
-              <option value="IN_PROGRESS">In Progress</option>
-              <option value="DONE">Done</option>
-            </select>
-          </div>
-
-          <div className="space-y-2">
-            <label htmlFor="priority" className="text-sm font-medium">
-              Priority
-            </label>
-            <select
-              id="priority"
+              title="Priority"
               value={priority}
-              onChange={(e) => setPriority(e.target.value)}
-              className="w-full rounded-xl border px-3 py-2 text-sm"
+              onChange={(e) =>
+                setPriority(e.target.value as "LOW" | "MEDIUM" | "HIGH")
+              }
+              className="rounded-xl border px-3 py-2 text-sm outline-none"
             >
               <option value="LOW">Low</option>
               <option value="MEDIUM">Medium</option>
               <option value="HIGH">High</option>
             </select>
           </div>
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="inline-flex items-center justify-center rounded-xl bg-black px-4 py-2.5 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-50"
+          >
+            {isSubmitting ? "Creating..." : "Create Task"}
+          </button>
         </div>
 
-        {errorMessage ? (
-          <p className="text-sm text-red-500">{errorMessage}</p>
+        {error ? <p className="text-sm text-red-500">{error}</p> : null}
+        {successMessage ? (
+          <p className="text-sm text-emerald-600">{successMessage}</p>
         ) : null}
-
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="inline-flex rounded-xl bg-black px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-        >
-          {isSubmitting ? "Creating..." : "Create Task"}
-        </button>
-      </form>
-    </div>
+      </div>
+    </form>
   );
 }

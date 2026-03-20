@@ -13,6 +13,13 @@ export function KanbanBoard({ children }: { children: React.ReactNode }) {
 
     const taskId = String(active.id);
     const newStatus = String(over.id);
+    const currentStatus = active.data.current?.status as
+      | "TODO"
+      | "IN_PROGRESS"
+      | "DONE"
+      | undefined;
+
+    if (currentStatus === newStatus) return;
 
     try {
       const response = await fetch(`/api/tasks/${taskId}`, {

@@ -36,16 +36,23 @@ export default async function ProjectDetailPage({ params }: PageProps) {
 
   return (
     <main className="min-h-screen bg-background p-6">
-      <div className="mx-auto max-w-7xl space-y-8">
-        <section className="space-y-2">
-          <p className="text-sm text-muted-foreground">Project Detail</p>
-          <h1 className="text-3xl font-bold tracking-tight">{project.name}</h1>
-          <p className="text-muted-foreground">
-            {project.description || "No description provided."}
+      <div className="mx-auto max-w-7xl space-y-10">
+        <section className="space-y-3">
+          <p className="text-sm font-medium text-muted-foreground">
+            Project Detail
           </p>
+
+          <div className="space-y-2">
+            <h1 className="text-4xl font-bold tracking-tight">{project.name}</h1>
+            <p className="max-w-2xl text-sm text-muted-foreground sm:text-base">
+              {project.description || "No description provided."}
+            </p>
+          </div>
         </section>
 
-        <CreateTaskForm projectId={project.id} />
+        <section className="rounded-2xl border bg-card p-5 shadow-sm">
+          <CreateTaskForm projectId={project.id} />
+        </section>
 
         <KanbanBoard>
           <section className="grid gap-4 lg:grid-cols-3">
