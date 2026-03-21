@@ -35,20 +35,19 @@ export function TaskCard({ task }: { task: Task }) {
     <div
       ref={setNodeRef}
       style={style}
-      className="rounded-xl border bg-background p-4 shadow-sm transition hover:shadow-md"
+      className="rounded-2xl border bg-background p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
     >
       <div className="flex items-start justify-between gap-3">
-        <div className="flex-1">
-          <p className="font-medium leading-6">{task.title}</p>
-
-          <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">
+        <div className="space-y-2">
+          <p className="text-[15px] font-semibold leading-6">{task.title}</p>
+          <p className="line-clamp-3 text-sm text-muted-foreground">
             {task.description || "No description"}
           </p>
         </div>
 
         <div className="flex flex-col items-end gap-2">
           <span
-            className={`rounded-full border px-2 py-1 text-[11px] font-medium ${getPriorityStyles(
+            className={`rounded-full border px-2.5 py-1 text-[11px] font-medium ${getPriorityStyles(
               task.priority
             )}`}
           >
@@ -59,7 +58,7 @@ export function TaskCard({ task }: { task: Task }) {
             type="button"
             {...listeners}
             {...attributes}
-            className="rounded-md border p-1 text-muted-foreground hover:bg-muted cursor-grab active:cursor-grabbing"
+            className="rounded-lg border p-1.5 text-muted-foreground transition hover:bg-muted cursor-grab active:cursor-grabbing"
             aria-label="Drag task"
           >
             <GripVertical className="h-4 w-4" />
@@ -67,7 +66,7 @@ export function TaskCard({ task }: { task: Task }) {
         </div>
       </div>
 
-      <div className="mt-4">
+      <div className="mt-4 border-t pt-4">
         <TaskActions taskId={task.id} currentStatus={task.status} />
       </div>
     </div>

@@ -72,9 +72,9 @@ export function TaskActions({ taskId, currentStatus }: Props) {
           <button
             onClick={() => updateStatus("TODO")}
             disabled={isLoading}
-            className="rounded-lg border px-2.5 py-1 text-xs text-muted-foreground transition hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-full border px-3 py-1.5 text-xs text-muted-foreground transition hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isLoading ? "Updating..." : "Todo"}
+            Todo
           </button>
         )}
 
@@ -82,9 +82,9 @@ export function TaskActions({ taskId, currentStatus }: Props) {
           <button
             onClick={() => updateStatus("IN_PROGRESS")}
             disabled={isLoading}
-            className="rounded-lg border px-2.5 py-1 text-xs text-muted-foreground transition hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-full border px-3 py-1.5 text-xs text-muted-foreground transition hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isLoading ? "Updating..." : "In Progress"}
+            In Progress
           </button>
         )}
 
@@ -92,16 +92,16 @@ export function TaskActions({ taskId, currentStatus }: Props) {
           <button
             onClick={() => updateStatus("DONE")}
             disabled={isLoading}
-            className="rounded-lg border px-2.5 py-1 text-xs text-muted-foreground transition hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-full border px-3 py-1.5 text-xs text-muted-foreground transition hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isLoading ? "Updating..." : "Done"}
+            Done
           </button>
         )}
 
         <button
           onClick={deleteTask}
           disabled={isLoading}
-          className="rounded-lg border border-red-200 px-2.5 py-1 text-xs text-red-500 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded-full border border-red-200 px-3 py-1.5 text-xs text-red-500 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isLoading ? "Processing..." : "Delete"}
         </button>
